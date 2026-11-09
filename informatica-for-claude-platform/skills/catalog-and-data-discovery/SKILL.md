@@ -3,7 +3,7 @@ name: catalog-and-data-discovery
 description: "CDGC catalog discovery and governance — tables, columns, glossary terms, domains, policies — trust, ownership, PII, sensitivity, safe use. Run before data queries. Any data/metadata question: find/get/show, who owns, authoritative, can I rely on, safe to use, what policy. SKIP: catalog writes, ETL."
 metadata:
   version: "1.0"
-  domains: ["CDGC", "Claire"]
+  domains: "CDGC, Claire"
 ---
 
 # Catalog and Data Discovery — Intent-Driven Trusted Data Discovery
@@ -66,7 +66,7 @@ Two families: **Technical** (`Dataset`, `DataElement`) and **Business** (`Busine
 - Technical: `certified: true` is the primary trust signal (Dataset-only). `dataClassification` for PII/sensitivity.
 - Business: `assetLifecycle` (`Published` > `Draft` > `Obsolete`). Not "certified" in the catalog sense.
 - Search by type: NL mode for supertypes ("any table"); KEYWORD + `filterSpec.classType` for specific subtypes.
-- **Do not use `filterSpec.types`** — the BFF strips it (silent no-op). Use NL mode for supertype-level intent.
+- **Do not use `filterSpec.types`** — the server ignores it (silent no-op). Use NL mode for supertype-level intent.
 
 ---
 
@@ -103,6 +103,16 @@ Two read-only discovery tools. This skill does NOT enrich, edit, classify, or ce
 ### Parallel execution
 
 Issue independent calls in the same turn. Fast path (2 rounds) when column UUIDs come from search; slow path (3 rounds) when hierarchy must resolve them first. See [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model" for the full round model.
+
+### Gotchas
+
+Silent or surprising failures — each restates a rule above or in the references:
+
+- **`get_asset_details` with `identityType: EXTERNAL` → HTTP 400.** Always pass the internal UUID (§4). The external ID is only for the data-exploration hand-off.
+- **`certified:true` drops every non-dataset.** Glossary terms, domains and policies are never certified — filter them with `assetLifecycle:["Published"]` (§11).
+- **A compound phrase as one KEYWORD query → 0 results.** Split into single words or use NL (§11, [references/search-rules.md](references/search-rules.md) "Compound phrase hard rule").
+- **`filterSpec.types` is silently ignored.** Use NL mode for supertype intent (§3).
+- **`data_explore` without `external_id` / `external_ids` → empty frames, no error.** An empty frame means the ID was missing, not that the asset has no data ([references/tools-and-execution.md](references/tools-and-execution.md) "Reading actual data").
 
 ---
 

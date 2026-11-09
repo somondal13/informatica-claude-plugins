@@ -29,6 +29,9 @@ When the user needs actual data (row values, counts, aggregates), the skill hand
 catalog-and-data-discovery/
 ├── SKILL.md                          # Core playbook (14 sections)
 ├── README.md                         # This file
+├── evals/
+│   ├── evals.json                    # Output-quality test cases (prompt + expected behavior)
+│   └── trigger-evals.json            # Should/should-not-trigger queries for the description
 └── references/
     ├── asset-types.md                # Technical vs business asset families, classType search
     ├── tools-and-execution.md        # Tool parameters, segments, parallel execution, data-exploration hand-off

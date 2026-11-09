@@ -30,7 +30,7 @@ Before next call. Small named = signal. Large generic = noise.
 
 - `certified:true` excludes non-datasets (never on glossary probes).
 - `assetLifecycle:["Published"]` works on all types.
-- **Do not use `filterSpec.types`** — the BFF strips it (silent no-op). Canonical: [asset-types.md](asset-types.md) §3.4 B. Use NL mode for supertype-level intent.
+- **Do not use `filterSpec.types`** — the server ignores it (silent no-op). Canonical: [asset-types.md](asset-types.md) §3.4 B. Use NL mode for supertype-level intent.
 
 ## Size guidelines
 

@@ -58,7 +58,7 @@ filterSpec: { classType: ["com.infa.ccgf.models.governance.BusinessTerm",
                           "com.infa.ccgf.models.governance.Metric"] }
 ```
 
-**Do not use `filterSpec.types`.** Although the tool schema lists `types` as a filter field, the BFF server strips any caller-supplied value (`SearchRequestBuilder.stripRestrictedFilters`) — the supertype policy is enforced server-side and cannot be widened or narrowed by the client. Passing `types` is a silent no-op. For supertype-level intent, use NL mode (§3.4 A) instead.
+**Do not use `filterSpec.types`.** Although the tool schema lists `types` as a filter field, the server discards any caller-supplied value — the supertype policy is enforced server-side and cannot be widened or narrowed by the client. Passing `types` is a silent no-op. For supertype-level intent, use NL mode (§3.4 A) instead.
 
 Use `filterSpec.resourceType` (e.g. `Oracle`, `Snowflake`, `MySql`, `Postgres`, `Redshift`) to narrow technical assets by catalog **source**. Combine `classType` + `resourceType` for "Snowflake tables only":
 

@@ -2,6 +2,8 @@
 
 > Canonical source for SKILL.md §4 (Tools & Segments). Read when the agent is about to issue tool calls (especially multi-round scenarios or data-exploration hand-off).
 
+**Contents:** search_assets — find assets by query + filters · get_asset_details — fetch typed asset by identity · Segments · Batching rules · Parallel execution model · Limitations (state when relevant) · Reading actual data — hand off to informatica-data-exploration · Enriching the hand-off prompt (MANDATORY)
+
 Two read-only discovery tools. This skill does NOT enrich, edit, classify, or certify assets — those are steward workflows outside its scope. When a gap is found, the skill reports it and points to the steward; it never proposes to write to the catalog.
 
 ## `search_assets` — find assets by query + filters
@@ -96,7 +98,7 @@ For sources the `informatica-data-exploration` does not cover, pass the resolved
 
 `external_id` binds the *asset* (see "Reading actual data" above). It does NOT carry anything else discovery resolved. Whenever discovery resolved a fact the query engine needs — a Metric's business-logic formula, a `BusinessTerm`'s `AliasNames`, a fiscal/period term's date range, a dimension term's resolved member list, the specific measure column, or column wiring — the `prompt` argument passed to `data_explore` / `master_data_explore` **MUST be a rewritten, fully-resolved instruction carrying those facts. It MUST NOT be the user's raw question.** Include the resolved table name and external_id, the column mapping (which columns serve the user's business terms), any filters resolved from catalog terms (fiscal period boundaries, region lists), and any governance gates (PII columns to mask, RTBF/consent filters to apply).
 
-**Why this is mandatory, not a nicety.** These tools route on the `prompt` string verbatim; there is **no separate structured field for resolved catalog facts** (see Limitations above). Anything discovery learned is invisible to the agent unless it is written into the prompt string. If the raw question is passed, the agent re-resolves the terms itself — off possibly-stale profiles — and silently returns a wrong number. (Observed live: the raw prompt `"Q2 Sales Revenue for EMEA"` made the agent filter `WHERE LOWER(SALES_REGION)='emea'`, which matched zero rows against country-valued data.)
+**Why this is mandatory, not a nicety.** These tools route on the `prompt` string verbatim; there is **no separate structured field for resolved catalog facts** (see Limitations above). Anything discovery learned is invisible to the agent unless it is written into the prompt string. If the raw question is passed, the agent re-resolves the terms itself — off possibly-stale profiles — and silently returns a wrong number. (Example failure: the raw prompt `"Q2 Sales Revenue for EMEA"` made the agent filter `WHERE LOWER(SALES_REGION)='emea'`, which matched zero rows against country-valued data.)
 
 **Prompt-rewrite template (ASCII only — no em-dashes, no angle brackets in the actual prompt string; both trip the MCP input validator):**
 
@@ -112,7 +114,7 @@ the region or the period from the data.
 - Raw (WRONG — do not send): `Q2 Sales Revenue for EMEA`
 - Enriched (CORRECT): `Sum NET_SALES from FACT_ORDER where SALES_REGION in ('France','Italy','Germany') and ORDER_DATE between 2026-05-01 and 2026-07-31. Use these exact filter values; do not re-derive the region or the period from the data.`
 
-**Negative example (this is the live bug, not a valid call).** Emitting `data_explore` with `"prompt": "<the user's raw question>"` — even with `external_id` present — is a defect. Correctly decoding the terms in your visible reasoning is NOT a substitute for putting the resolved facts into the prompt; only the prompt string reaches the engine.
+**Negative example (this is the known failure mode, not a valid call).** Emitting `data_explore` with `"prompt": "<the user's raw question>"` — even with `external_id` present — is a defect. Correctly decoding the terms in your visible reasoning is NOT a substitute for putting the resolved facts into the prompt; only the prompt string reaches the engine.
 
 **Pre-hand-off verification gate (silent — run before emitting ANY `data_explore` / `master_data_explore` call; mirrors the Verdict Self-Check in SKILL.md):**
 

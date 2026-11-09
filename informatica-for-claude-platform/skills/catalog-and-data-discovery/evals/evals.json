@@ -1,0 +1,47 @@
+{
+  "skill_name": "catalog-and-data-discovery",
+  "evals": [
+    {
+      "id": 1,
+      "name": "E1-ownership-certification",
+      "prompt": "who owns the customer orders table and is it certified?",
+      "expected_output": "Searches the catalog, answers with Verdict first, then Evidence, Gaps, Next actions. Owner and certification come from catalog metadata only.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "E2-indirect-safe-use",
+      "prompt": "my manager wants to share the churn dataset with the EU team, anything I should worry about?",
+      "expected_output": "Treated as a safe-use check: reports PII/sensitivity classification, policies, and ownership; flags gaps instead of guessing.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "E3-glossary-to-columns",
+      "prompt": "which glossary term defines 'active customer' and which columns map to it?",
+      "expected_output": "Finds the term, follows associations to columns, distinguishes declared from inferred links.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "E4-provenance-no-lineage",
+      "prompt": "where does the revenue_summary table get its data from? is there lineage?",
+      "expected_output": "Reports that lineage is not available through these tools, searches feeder assets by name, and labels the result as inferred.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "E9-compound-phrase-edge-case",
+      "prompt": "find tables about customer-churn-risk-score",
+      "expected_output": "Does not stop at a zero-result KEYWORD search; retries as natural-language or split terms per the search rules, and does not invent assets when nothing is found.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "E10-discovery-then-handoff",
+      "prompt": "find the revenue table, then show me what's in it",
+      "expected_output": "Catalog discovery first, then hand-off to data exploration with the external identifier; warns if the identifier is missing instead of returning empty frames.",
+      "files": []
+    }
+  ]
+}

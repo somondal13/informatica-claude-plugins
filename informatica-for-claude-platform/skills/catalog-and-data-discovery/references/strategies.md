@@ -2,6 +2,8 @@
 
 > Canonical source for SKILL.md §7 (Strategies). Read when the agent has classified the intent and needs the full procedure for that strategy.
 
+**Contents:** BROAD_DISCOVERY · AUTHORITY_COMPARE · FIELD_MEANING · FIELD_RELIABILITY · TRUST_ASSESSMENT · FRESHNESS · RELATIONSHIPS · IMPACT_ANALYSIS · PROVENANCE · ROOT_CAUSE · OWNERSHIP · SENSITIVITY · POLICY · SAFE_USAGE · COMPLIANCE_FLAG · Worked illustration — period-scoped BROAD_DISCOVERY (wasteful vs corrected)
+
 ## BROAD_DISCOVERY
 
 1. **Term extraction — include dimensional terms.** From the question, extract every catalog-relevant term: business concepts ("revenue", "customer") AND dimensional / qualifying terms ("EMEA", "last quarter", "by category"). Do NOT drop dimensional terms as filtering-only noise — the catalog governs them too (Fiscal Quarter, Region, Product Category typically exist as glossary terms, business domains, or reference dimensions), and dropping them loses the exact governance context that answers the question. Every extracted term is a candidate query for steps 2–4, and each should be resolved against BOTH technical assets (tables, columns, files, reports) AND business assets (glossary terms, domains, policies). The highest-value hit shape is a technical asset that carries a linked business glossary term — physical location + governed meaning in one place — rank this shape first when reporting (step 7).

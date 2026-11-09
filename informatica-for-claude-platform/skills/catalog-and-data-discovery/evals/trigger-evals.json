@@ -1,0 +1,12 @@
+[
+  {"query": "who owns the customer orders table and is it certified?", "should_trigger": true},
+  {"query": "my manager wants to share the churn dataset with the EU team, anything I should worry about?", "should_trigger": true},
+  {"query": "which glossary term defines 'active customer' and which columns map to it?", "should_trigger": true},
+  {"query": "where does the revenue_summary table get its data from? is there lineage?", "should_trigger": true},
+  {"query": "show me the top 10 customers by revenue from the orders table", "should_trigger": false},
+  {"query": "pull the first 100 rows of the EMEA sales view and sum amount by month", "should_trigger": false},
+  {"query": "mark the orders table as certified and assign Maria as owner", "should_trigger": false},
+  {"query": "build an ETL mapping that copies customers from Snowflake to Redshift", "should_trigger": false},
+  {"query": "find tables about customer-churn-risk-score", "should_trigger": true},
+  {"query": "find the revenue table, then show me what's in it", "should_trigger": true}
+]
