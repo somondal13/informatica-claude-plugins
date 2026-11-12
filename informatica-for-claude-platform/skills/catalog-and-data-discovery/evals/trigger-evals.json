@@ -1,12 +1,98 @@
 [
-  {"query": "who owns the customer orders table and is it certified?", "should_trigger": true},
-  {"query": "my manager wants to share the churn dataset with the EU team, anything I should worry about?", "should_trigger": true},
-  {"query": "which glossary term defines 'active customer' and which columns map to it?", "should_trigger": true},
-  {"query": "where does the revenue_summary table get its data from? is there lineage?", "should_trigger": true},
-  {"query": "show me the top 10 customers by revenue from the orders table", "should_trigger": false},
-  {"query": "pull the first 100 rows of the EMEA sales view and sum amount by month", "should_trigger": false},
-  {"query": "mark the orders table as certified and assign Maria as owner", "should_trigger": false},
-  {"query": "build an ETL mapping that copies customers from Snowflake to Redshift", "should_trigger": false},
-  {"query": "find tables about customer-churn-risk-score", "should_trigger": true},
-  {"query": "find the revenue table, then show me what's in it", "should_trigger": true}
+  {
+    "query": "who owns the customer orders table and is it certified?",
+    "should_trigger": true
+  },
+  {
+    "query": "my manager wants to share the churn dataset with the EU team, anything I should worry about?",
+    "should_trigger": true
+  },
+  {
+    "query": "which glossary term defines 'active customer' and which columns map to it?",
+    "should_trigger": true
+  },
+  {
+    "query": "where does the revenue_summary table get its data from? is there lineage?",
+    "should_trigger": true
+  },
+  {
+    "query": "show me the top 10 customers by revenue from the orders table",
+    "should_trigger": true
+  },
+  {
+    "query": "pull the first 100 rows of the EMEA sales view and sum amount by month",
+    "should_trigger": true
+  },
+  {
+    "query": "mark the orders table as certified and assign Maria as owner",
+    "should_trigger": false
+  },
+  {
+    "query": "build an ETL mapping that copies customers from Snowflake to Redshift",
+    "should_trigger": false
+  },
+  {
+    "query": "find tables about customer-churn-risk-score",
+    "should_trigger": true
+  },
+  {
+    "query": "find the revenue table, then show me what's in it",
+    "should_trigger": true
+  },
+  {
+    "query": "can I use the RATING field in FCT_ORDERS for a dashboard?",
+    "should_trigger": true
+  },
+  {
+    "query": "is there any PII in the customer_master table?",
+    "should_trigger": true
+  },
+  {
+    "query": "what policy applies to the email column in our CRM data?",
+    "should_trigger": true
+  },
+  {
+    "query": "we're about to run an email campaign on the loyalty list \u2014 is there a do-not-contact or consent flag?",
+    "should_trigger": true
+  },
+  {
+    "query": "which is the authoritative revenue table, there seem to be three of them",
+    "should_trigger": true
+  },
+  {
+    "query": "how many orders did EMEA have last quarter?",
+    "should_trigger": true
+  },
+  {
+    "query": "update the description of the SALES_FACT table to say it is deprecated",
+    "should_trigger": false
+  },
+  {
+    "query": "link the glossary term Net Revenue to the AMOUNT column",
+    "should_trigger": false
+  },
+  {
+    "query": "write a python script that reads a CSV and plots sales by month",
+    "should_trigger": false
+  },
+  {
+    "query": "explain what a data catalog is in general terms",
+    "should_trigger": false
+  },
+  {
+    "query": "set up a new Snowflake connection in IDMC",
+    "should_trigger": false
+  },
+  {
+    "query": "why is my Informatica mapping task failing with a timeout error?",
+    "should_trigger": false
+  },
+  {
+    "query": "create a data quality rule in CDGC that flags null emails",
+    "should_trigger": false
+  },
+  {
+    "query": "explain what this SQL does: SELECT region, SUM(amount) FROM sales GROUP BY region",
+    "should_trigger": false
+  }
 ]

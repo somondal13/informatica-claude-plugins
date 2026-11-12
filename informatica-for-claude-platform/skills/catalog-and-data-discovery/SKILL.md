@@ -1,6 +1,6 @@
 ---
 name: catalog-and-data-discovery
-description: "CDGC catalog discovery and governance — tables, columns, glossary terms, domains, policies — trust, ownership, PII, sensitivity, safe use. Run before data queries. Any data/metadata question: find/get/show, who owns, authoritative, can I rely on, safe to use, what policy. SKIP: catalog writes, ETL."
+description: "Find, assess and explain data assets using the organization's Informatica data catalog (CDGC): tables, columns, views, glossary terms, metrics, domains and policies. Use this skill whenever the user asks which data exists or which table or field to use, who owns it, whether it is certified, trusted, current or authoritative, what a field or business term means, whether it holds PII or sensitive data, what policy, consent or right-to-be-forgotten rules apply, or whether data is safe to use or share — even if they never mention the catalog (e.g. 'can I share this with the EU team?'). Use it first for business data questions too (counts, totals, top-N by region or period), so the governed asset is resolved before any data is read. Do not use it to change the catalog (edit descriptions, certify, link terms, assign owners, create DQ rules), to build ETL or mappings, or for general coding or SQL help."
 metadata:
   version: "1.0"
   domains: "CDGC, Claire"
