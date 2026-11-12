@@ -16,7 +16,7 @@ Pick the mode that matches what the user actually typed:
 
 **Canonical definition: BROAD_DISCOVERY step 2 in [strategies.md](strategies.md).**
 
-Do NOT search multi-word compound phrases as a single KEYWORD query — they return 0 results. Either split into individual single-word KEYWORD searches (each run in parallel) or route the full phrase to NL mode. This is enforced as a mandatory gate in the strategy, not a best practice.
+Do NOT search multi-word compound phrases as a single KEYWORD query — they return 0 results. Either split into individual single-word KEYWORD searches (issued together in one round) or route the full phrase to NL mode. This is enforced as a mandatory gate in the strategy, not a best practice.
 
 ## Trust filtering
 

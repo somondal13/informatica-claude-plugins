@@ -39,37 +39,41 @@ Fetch full details of one asset by identity. Always returns a `resolvedSummary` 
 
 ## Parallel execution model
 
-Issue independent tool calls in the **same turn** — do not wait for one to return before sending the next. Two calls are independent when neither needs a value from the other's response.
+Two calls are independent when neither needs a value from the other's response. A **round** is a set of mutually independent calls; a later round needs values from an earlier one.
+
+- **Default (client supports parallel tool calls):** issue all calls in a round together in the **same turn** — do not wait for one to return before sending the next.
+- **Client does not support parallel calls:** run the calls in a round one after another, in any order, then move to the next round. Results are identical; only latency differs.
+- **Resource fallback:** if a call fails with a resource or concurrency error (429, too many requests, concurrency limit), re-run the failed calls one at a time and stay sequential for the rest of the conversation. If a call still fails when run alone, do not retry again — report it as a tool error for that segment ("unable to retrieve [X]", [search-rules.md](search-rules.md)) and deliver the rest. This is not a steward escalation. Timeouts follow [business-delivery.md](business-delivery.md) "Failure and partial states".
 
 **Round model for BROAD_DISCOVERY (target: 2–3 rounds depending on path):**
 
 Column UUIDs can arrive from two sources — Round 1 search results or Round 2 hierarchy. Which path applies determines whether glossary wiring runs in Round 2 or Round 3.
 
 ```
-Round 1 (parallel):  search(topic) + search(dimension terms) + search(fiscal terms)
-                     ↓ identities resolve — check: did search return column UUIDs?
+Round 1:  search(topic) + search(dimension terms) + search(fiscal terms)
+          ↓ identities resolve — check: did search return column UUIDs?
 
 ─── Fast path (columns in Round 1 results — 2 rounds total) ─────────────────
-Round 2 (parallel):  get_asset_details(top asset, [hierarchy, selfAttributes, dataClassification, stakeholdership])
-                     + get_asset_details(date column, [glossary])      — fiscal wiring
-                     + get_asset_details(region column, [glossary])    — dimensional wiring
-                     Column UUIDs already known → glossary runs alongside hierarchy, not after it.
+Round 2:  get_asset_details(top asset, [hierarchy, selfAttributes, dataClassification, stakeholdership])
+          + get_asset_details(date column, [glossary])      — fiscal wiring
+          + get_asset_details(region column, [glossary])    — dimensional wiring
+          Column UUIDs already known → glossary runs alongside hierarchy, not after it.
 
 ─── Slow path (columns NOT in Round 1 results — 3 rounds) ───────────────────
-Round 2 (parallel):  get_asset_details(top asset, [hierarchy, selfAttributes, dataClassification, stakeholdership])
-                     + get_asset_details(related dimension table, [hierarchy])
-                     ↓ column identities resolve from hierarchy
-Round 3 (parallel):  get_asset_details(date column, [glossary])      — fiscal wiring
-                     + get_asset_details(region column, [glossary])   — dimensional wiring
+Round 2:  get_asset_details(top asset, [hierarchy, selfAttributes, dataClassification, stakeholdership])
+          + get_asset_details(related dimension table, [hierarchy])
+          ↓ column identities resolve from hierarchy
+Round 3:  get_asset_details(date column, [glossary])      — fiscal wiring
+          + get_asset_details(region column, [glossary])   — dimensional wiring
 ```
 
 **Rules:**
-- All searches in step 1–3 of the BROAD_DISCOVERY strategy are independent → **always parallel in Round 1**.
+- All searches in steps 1–2 of the BROAD_DISCOVERY strategy are independent → **all in Round 1** (parallel if supported).
 - **Path selection after Round 1:** inspect search results for column/DataElement identities. If the columns you need for glossary wiring (date column, region column, etc.) appeared in Round 1 results, their UUIDs are already known — take the fast path. If search returned only the parent table (common when column names don't match the keyword), take the slow path.
-- **Fast path:** all `get_asset_details` calls — hierarchy on the parent, glossary on known columns — are independent → **all parallel in Round 2**. Do NOT wait for hierarchy to "discover" column UUIDs you already have from search. This eliminates Round 3 entirely.
+- **Fast path:** all `get_asset_details` calls — hierarchy on the parent, glossary on known columns — are independent → **all in Round 2** (parallel if supported). Do NOT wait for hierarchy to "discover" column UUIDs you already have from search. This removes the Round 3 dependency step entirely.
 - **Slow path:** hierarchy fetch in Round 2 → column UUIDs resolve → glossary wiring checks on those columns in Round 3.
 - **Do not re-search for columns the hierarchy already gave you.** After Round 2's hierarchy fetch returns the full column list with UUIDs, use those UUIDs directly for Round 3 glossary calls. A separate `search_assets(query="ORDER_DATE")` to find a column UUID that hierarchy already returned is a wasted call.
-- Escalation-on-zero (BROAD_DISCOVERY step 3) is inherently sequential — it retries only when the prior call returned zero. This is the one case where waiting is correct.
+- Escalation-on-zero (BROAD_DISCOVERY step 3) is inherently sequential — it retries only when the prior call returned zero, so it stays sequential even when the client supports parallel calls.
 - Segment batching (above) still applies — combine segments into one call per asset rather than one call per segment.
 
 ## Limitations (state when relevant)

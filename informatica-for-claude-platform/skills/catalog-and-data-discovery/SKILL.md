@@ -21,7 +21,7 @@ The CDGC catalog is the authoritative index of what data exists, what it means t
 5. **Gaps are findings.** Missing description, absent owner, no glossary term — report these explicitly.
 6. **Zero hallucination.** Every claim cites a tool response or the absence of expected data.
 7. **Minimize calls.** Batch segments. Cap at 3–5 calls per strategy unless user asks for more.
-8. **Parallelize independent calls.** When multiple tool calls have no data dependency between them, issue them in the same turn — do NOT wait for one to return before sending the next. See [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model" for the execution model.
+8. **Parallelize independent calls (default).** When multiple tool calls have no data dependency between them, issue them in the same turn — do NOT wait for one to return before sending the next. Only if the client cannot issue parallel tool calls, or after a resource/concurrency error, run them one at a time. See [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model" for the execution model.
 
 ---
 
@@ -102,7 +102,7 @@ Two read-only discovery tools. This skill does NOT enrich, edit, classify, or ce
 
 ### Parallel execution
 
-Issue independent calls in the same turn. Fast path (2 rounds) when column UUIDs come from search; slow path (3 rounds) when hierarchy must resolve them first. See [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model" for the full round model.
+By default, issue independent calls together in the same turn. Run them sequentially only if the client cannot issue parallel calls or after a resource/concurrency error (see the reference). A round is a set of calls with no dependency on each other. Fast path (2 rounds) when column UUIDs come from search; slow path (3 rounds) when hierarchy must resolve them first. See [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model" for the full round model.
 
 ### Gotchas
 
