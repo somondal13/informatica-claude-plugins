@@ -91,9 +91,9 @@ This skill is **metadata-only** — it decides *which* asset is right, trusted, 
 - Call **`data_explore`** with the request payload.
 - If `data_explore` / `master_data_explore` returns a connection or authentication/session error (not connected, session expired, 401), ask the user to reconnect the Informatica data-exploration connection in their client, and retry only after they confirm. Still deliver the catalog findings already resolved. A 403 / `permission_denied` or a `timeout` follows [business-delivery.md](business-delivery.md) "Failure and partial states".
 
-**MANDATORY — always send `external_id` (single asset) or `external_ids` (multiple assets) in the `data_explore` payload.** This is the asset's **EXTERNAL** catalog identity — the same value passed as `assetIdentity` with `identityType: EXTERNAL` — carried straight through from the `search_assets` / `get_asset_details` response. If `external_id`/`external_ids` is omitted, `data_explore` returns **empty result frames (zero rows) silently — no error is raised**. An empty frame therefore means "the external_id was missing," not "the asset has no data." Never call `data_explore` without it. The `prompt` you send is equally mandatory — it MUST be enriched with the resolved facts (see "Enriching the hand-off prompt" below), never the raw user question. Re-confirm the exact field spelling against the tool schema if a call unexpectedly returns empty.
+**MANDATORY — always send `external_id` (single asset) or `external_ids` (multiple assets) in the `data_explore` payload.** This is the asset's **EXTERNAL** catalog identity — the `externalId` field, passed unchanged — carried straight through from the `search_assets` / `get_asset_details` response. If `external_id`/`external_ids` is omitted, `data_explore` returns **empty result frames (zero rows) silently — no error is raised**. An empty frame therefore means "the external_id was missing," not "the asset has no data." Never call `data_explore` without it. The `prompt` you send is equally mandatory — it MUST be enriched with the resolved facts (see "Enriching the hand-off prompt" below), never the raw user question. Re-confirm the exact field spelling against the tool schema if a call unexpectedly returns empty.
 
-If `informatica-data-exploration` does not cover the source and another data-access tool for it is available in this session, pass it the resolved asset path and an enriched prompt built as in "Enriching the hand-off prompt" below (follow that tool's own input rules). Otherwise say so and give the user the resolved asset and the resolved filters to run themselves, rather than reporting the question as unanswerable.
+If `informatica-data-exploration` does not cover the source and another data-access tool for it is available in this session, pass it the resolved asset path and an enriched prompt built as in "Enriching the hand-off prompt" below (follow that tool's own input rules). If the user or the client indicates a data tool for that source exists but is not enabled in this session, ask the user to enable it. Otherwise say so and give the user the resolved asset and the resolved filters to run themselves, rather than reporting the question as unanswerable.
 
 ## Enriching the hand-off prompt (MANDATORY)
 
@@ -119,9 +119,9 @@ the region or the period from the data.
 
 **Pre-hand-off verification gate (silent — run before emitting ANY `data_explore` / `master_data_explore` call; mirrors the Verdict Self-Check in SKILL.md):**
 
-1. Does `prompt` contain the resolved **measure column**? If NO → rewrite before sending.
-2. Does `prompt` contain the resolved **dimension member list** (the actual values, e.g. the countries) rather than the business-term label (e.g. "EMEA")? If NO → rewrite.
-3. Does `prompt` contain the resolved **fiscal date range** (explicit start and end dates), not a bare period word ("Q2")? If NO → rewrite.
+1. If the question involves a measure: does `prompt` contain the resolved **measure column**? If NO → rewrite before sending.
+2. If the question uses a dimension term: does `prompt` contain the resolved **dimension member list** (the actual values, e.g. the countries) rather than the business-term label (e.g. "EMEA")? If NO → rewrite.
+3. If the question is period-scoped: does `prompt` contain the resolved **fiscal date range** (explicit start and end dates), not a bare period word ("Q2")? If NO → rewrite.
 4. Is `prompt` byte-identical or near-identical to the user's **raw question**? If YES → STOP: it has not been enriched — rewrite before sending.
 5. Is `external_id` / `external_ids` present (see "Reading actual data" above)? If NO → add it.
 

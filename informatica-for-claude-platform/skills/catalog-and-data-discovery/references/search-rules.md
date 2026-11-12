@@ -8,7 +8,7 @@ Pick the mode that matches what the user actually typed:
 
 - **Concrete noun / entity / specific asset name** ("revenue", "orders", "EMEA", `CUSTOMER_MASTER`) → **KEYWORD** with `aggregationSpec` on `core.classType`. Cheapest, fastest, most precise; the majority of first-turn discovery prompts land here.
 - **Multi-word concept phrase** ("product performance", "sales and profitability", "customer lifetime value") → **NL**. KEYWORD on the compound returns zero, and splitting the tokens loses the concept.
-- **Question-shaped or fitness-shaped prompt** ("which tables have PII", "where's the trusted revenue data", "what's authoritative for orders") → **NL**. Tokens aren't in asset names; NL matches descriptions and parses intent.
+- **Question-shaped or fitness-shaped prompt** ("which tables have PII", "where's the trusted revenue data", "what's authoritative for orders") → **NL**. Tokens aren't in asset names; NL matches descriptions and parses intent. NL drops `filterSpec`, so when the user asks for trusted data, run single-word KEYWORD searches on the topic nouns with `certified:true` ([strategies.md](strategies.md) BROAD_DISCOVERY step 2).
 - **Supertype words used generically** ("tables", "columns", "files", "domains", "glossary terms" — used as type words, not as specific asset names) → **NL**. Only NL resolves supertype-level intent per [asset-types.md](asset-types.md) §3.4 A.
 - **Cold-start / topic-less** ("what data do we have?", "show me the trusted estate") → **trust census** (`query="*"`, `filterSpec={certified:true}`, `aggregationSpec=[{name:"agg", attributeNames:["core.classType"]}]`). This is when the census earns its keep — as the answer, not a preamble.
 

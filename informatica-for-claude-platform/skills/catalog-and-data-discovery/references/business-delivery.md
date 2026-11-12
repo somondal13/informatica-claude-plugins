@@ -116,7 +116,7 @@ Standardized `issues[].code` values: `term_not_found`, `term_not_wired`, `ambigu
 
 For each failure mode, name the owner and offer a next step. Never respond with an apology alone.
 
-- **`term_not_found`** → offer general definition (banner as assisted) or "ask a steward to define it" with the domain owner named.
+- **`term_not_found`** → state the gap and offer "ask a steward to define it" with the domain owner named. Give a general definition only if the user explicitly asks for one, bannered "Assisted - not from your catalog".
 - **`term_not_wired`** → name the term owner and offer "ping owner" or "show related certified metrics I can run".
 - **`ambiguous_term`** → return `candidates[]` (2–3) with owner and short definition. Ask once.
 - **`permission_denied`** → name the data owner and offer "request access" or "try a non-PII source instead".
@@ -154,7 +154,7 @@ For each failure mode, name the owner and offer a next step. Never respond with 
 ## Never / Always cheat sheet
 
 **Never**
-- Show SQL, physical table/column names, or MCP tool names in the primary answer.
+- Show SQL, physical table/column names, or MCP tool names in the primary answer (governance verdicts and gap reports may name the asset they assess).
 - Invent a term, region list, fiscal calendar, or forecast not in the catalog.
 - Silently reuse or silently reset carried context.
 - Respond with a bare apology.

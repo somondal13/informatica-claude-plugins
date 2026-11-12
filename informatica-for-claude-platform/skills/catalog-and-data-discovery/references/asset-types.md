@@ -75,7 +75,7 @@ The asset table's segment column names the *catalog fetch* — but a business as
 
 - **`Metric` — `business logic` field.** The tenant's actual calculation formula (status filters, currency conversion, window, join path) lives here — the business-side analogue of a view's `sourceStatementText`. When reporting a Metric, quote the `business logic` formula, not just the prose description; that's what the user has to reproduce if they query the source tables directly.
 - **`BusinessTerm` — `alias names` field.** Synonyms the concept can appear under in tables. If the term is "Net Revenue" but tables use `NET_SALES_AMT`, the alias tells you so. Treat aliases as extra search probes; surface them explicitly when you report the concept → data mapping.
-- **Glossary parenting is flexible.** `Domain`, `SubDomain`, `BusinessTerm`, and `Metric` can each sit under any of the others — a `hierarchy` walk over glossary assets is NOT a strict `Domain → SubDomain → Term` chain. Do NOT assume the parent's class; read `classType` on the parent before drawing a governance conclusion.
+- **Glossary parenting is not a strict chain.** Parenting follows the asymmetric rules above (Domain is a root; BusinessTerm is the most flexible), so a `hierarchy` walk over glossary assets is NOT a strict `Domain → SubDomain → Term` chain. Do NOT assume the parent's class; read `classType` on the parent before drawing a governance conclusion.
 
 ## Additional catalog categories
 
