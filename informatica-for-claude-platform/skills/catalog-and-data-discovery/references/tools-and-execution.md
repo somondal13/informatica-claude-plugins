@@ -87,8 +87,8 @@ This skill is **metadata-only** — it decides *which* asset is right, trusted, 
 **Sequence (catalog-first, always):** run discovery to pick the right/trusted/compliant asset and resolve its identity → then call `informatica-data-exploration` to read the data → carry the governance verdict forward (do not read data from an asset you flagged FORBIDDEN/CAUTION in the SAFE_USAGE strategy without stating the gate).
 
 **How to call it:**
-- Authenticate first: `authenticate` → `complete_authentication`. (The data-explore token is a flat 60-minute TTL with no refresh — re-authenticate when it expires.)
-- Then call **`data_explore`** with the request payload.
+- Call **`data_explore`** with the request payload.
+- If `data_explore` / `master_data_explore` returns a connection or authentication/session error (not connected, session expired, 401), ask the user to reconnect the Informatica data-exploration connection in their client, and retry only after they confirm. Still deliver the catalog findings already resolved. A 403 / `permission_denied` or a `timeout` follows [business-delivery.md](business-delivery.md) "Failure and partial states".
 
 **MANDATORY — always send `external_id` (single asset) or `external_ids` (multiple assets) in the `data_explore` payload.** This is the asset's **EXTERNAL** catalog identity — the same value passed as `assetIdentity` with `identityType: EXTERNAL` — carried straight through from the `search_assets` / `get_asset_details` response. If `external_id`/`external_ids` is omitted, `data_explore` returns **empty result frames (zero rows) silently — no error is raised**. An empty frame therefore means "the external_id was missing," not "the asset has no data." Never call `data_explore` without it. The `prompt` you send is equally mandatory — it MUST be enriched with the resolved facts (see "Enriching the hand-off prompt" below), never the raw user question. Re-confirm the exact field spelling against the tool schema if a call unexpectedly returns empty.
 

@@ -27,7 +27,7 @@ When the user needs actual data (row values, counts, aggregates), the skill hand
 
 ```
 catalog-and-data-discovery/
-├── SKILL.md                          # Core playbook (14 sections)
+├── SKILL.md                          # Core playbook (13 sections)
 ├── README.md                         # This file
 ├── evals/
 │   ├── evals.json                    # Output-quality test cases (prompt + expected behavior)

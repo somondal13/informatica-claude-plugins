@@ -29,7 +29,7 @@ The CDGC catalog is the authoritative index of what data exists, what it means t
 
 Do not issue any tool calls until these conditions are met:
 
-1. **CDGC Catalog Discovery MCP is reachable.** If `search_assets` returns a connection error or auth failure, stop and ask the user to verify their MCP session before continuing.
+1. **CDGC Catalog Discovery MCP is reachable.** If any catalog tool (`search_assets`, `get_asset_details`) returns a connection or authentication/session error (not connected, session expired, 401), ask the user to reconnect the Informatica catalog connection in their client, and retry only after they confirm. A 403 / `permission_denied` on a specific asset is an access issue, not a connection issue — see [references/business-delivery.md](references/business-delivery.md) "Failure and partial states".
 2. **At least one searchable term or asset identity exists.** If the user's prompt is too vague to classify intent or construct a search (e.g., "check my data", "help with governance", "what do you think?"), ask a clarifying question — name the kinds of input that would help (asset name, business question, data domain, specific field). Do not run a broad discovery search as a substitute for understanding the question.
 3. **Intent is classifiable.** If after clarification the prompt still maps to 0 intents in §5, default to BROAD_DISCOVERY but state the assumption to the user before proceeding.
 
@@ -141,21 +141,6 @@ Silent or surprising failures — each restates a rule above or in the reference
 1. **Scan** for signal tokens (case-insensitive). Apply disambiguators for overlaps.
 2. **Route:** 1 intent → execute. 2 intents → both (primary first). 3+ or 0 → score by (signal count × disambiguator match), fallback to BROAD_DISCOVERY.
 3. **Context override:** If assets already known and prompt references them → skip search, use stored UUIDs.
-
----
-
-## 6. Model Selection Strategy
-
-| Task type | Model | Rationale |
-|-----------|-------|-----------|
-| Intent classification, synthesis, trust scoring, root-cause analysis, final answer | **Opus / Sonnet** | Requires judgment, multi-signal reasoning, and structured output |
-| Single search or details call with fully determined parameters | **Haiku** | Mechanical execution — no interpretation needed between calls |
-| Multi-step tool chains requiring interpretation between steps | **Sonnet** | Needs reasoning to route between steps but not full synthesis |
-
-**Rules:**
-- Delegate to Haiku only when all parameters are fully determined. Delegate to Sonnet when the chain is self-contained but requires interpretation between steps.
-- Never delegate intent classification, synthesis, gap detection, or final-answer composition — keep these in the primary model (Opus or Sonnet).
-- Skip delegation entirely on short conversations (1–2 turns, 1–2 tool calls) — the overhead of dispatching outweighs the savings.
 
 ---
 
