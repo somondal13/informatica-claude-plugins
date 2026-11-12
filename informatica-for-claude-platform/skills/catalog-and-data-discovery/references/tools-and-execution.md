@@ -14,7 +14,7 @@ Search the catalog by natural language (NL) or keyword. Returns a page of asset 
 
 ## `get_asset_details` — fetch typed asset by identity
 
-Fetch full details of one asset by identity. Always returns a `resolvedSummary` (identity, name, type, location, description, stakeholders resolved to names/emails, assetGroups, timestamps) plus raw `systemAttributes`. Additional aspects are opt-in via `segments[]` — pick the minimum set for the intent (batching rules below).
+Fetch full details of one asset by identity. Always returns a `resolvedSummary` (identity, name, type, location, description, stakeholders resolved to names/emails, assetGroups, timestamps) plus raw `systemAttributes`. Additional aspects are opt-in via `segments[]` — pick the minimum set for the intent (batching rules in SKILL.md §4).
 
 **Parameters:** `assetIdentity` (required), `identityType` (`INTERNAL` = UUID default, `EXTERNAL` = path), `segments[]` (see below; default is `summary` only).
 
@@ -32,10 +32,7 @@ Fetch full details of one asset by identity. Always returns a `resolvedSummary` 
 
 ## Batching rules
 
-- TRUST_ASSESSMENT → `[selfAttributes, stakeholdership, glossary]` (`summary` is always returned and provides `modifiedOn` for Freshness scoring)
-- RELATIONSHIPS → `[hierarchy, neighborhood]`
-- SENSITIVITY → `[hierarchy, dataClassification]`
-- FIELD_MEANING → `[hierarchy]` on parent, then `[glossary, selfAttributes]` per child
+Canonical list: SKILL.md §4 "Batching rules" (always loaded). Combine segments into one call per asset.
 
 ## Parallel execution model
 
@@ -74,7 +71,7 @@ Round 3:  get_asset_details(date column, [glossary])      — fiscal wiring
 - **Slow path:** hierarchy fetch in Round 2 → column UUIDs resolve → glossary wiring checks on those columns in Round 3.
 - **Do not re-search for columns the hierarchy already gave you.** After Round 2's hierarchy fetch returns the full column list with UUIDs, use those UUIDs directly for Round 3 glossary calls. A separate `search_assets(query="ORDER_DATE")` to find a column UUID that hierarchy already returned is a wasted call.
 - Escalation-on-zero (BROAD_DISCOVERY step 3) is inherently sequential — it retries only when the prior call returned zero, so it stays sequential even when the client supports parallel calls.
-- Segment batching (above) still applies — combine segments into one call per asset rather than one call per segment.
+- Segment batching (SKILL.md §4) still applies — combine segments into one call per asset rather than one call per segment.
 
 ## Limitations (state when relevant)
 

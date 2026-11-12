@@ -95,7 +95,7 @@ Two read-only discovery tools. This skill does NOT enrich, edit, classify, or ce
 
 ### Batching rules
 
-- TRUST_ASSESSMENT → `[selfAttributes, stakeholdership, glossary]`
+- TRUST_ASSESSMENT → `[selfAttributes, stakeholdership, glossary]` (`summary` is always returned and provides `modifiedOn` for Freshness scoring)
 - RELATIONSHIPS → `[hierarchy, neighborhood]`
 - SENSITIVITY → `[hierarchy, dataClassification]`
 - FIELD_MEANING → `[hierarchy]` on parent, then `[glossary, selfAttributes]` per child
@@ -106,12 +106,11 @@ By default, issue independent calls together in the same turn. Run them sequenti
 
 ### Gotchas
 
-Silent or surprising failures — each restates a rule above or in the references:
+Silent or surprising failures — each restates a rule elsewhere in this file or in the references:
 
 - **`get_asset_details` with `identityType: EXTERNAL` → HTTP 400.** Always pass the internal UUID (§4). The external ID is only for the data-exploration hand-off.
 - **`certified:true` drops every non-dataset.** Glossary terms, domains and policies are never certified — filter them with `assetLifecycle:["Published"]` (§11).
 - **A compound phrase as one KEYWORD query → 0 results.** Split into single words or use NL (§11, [references/search-rules.md](references/search-rules.md) "Compound phrase hard rule").
-- **`filterSpec.types` is silently ignored.** Use NL mode for supertype intent (§3).
 - **`data_explore` without `external_id` / `external_ids` → empty frames, no error.** An empty frame means the ID was missing, not that the asset has no data ([references/tools-and-execution.md](references/tools-and-execution.md) "Reading actual data").
 
 ---
@@ -250,10 +249,9 @@ A structured list of every governance gap found during the assessment. Each gap 
 | Gap Type | Asset/Field | Detail | Severity |
 |----------|------------|--------|----------|
 | UNDOCUMENTED | e.g., RATING | No glossary term, no business name | High — meaning unverified |
-| AMBIGUOUS | e.g., ID | Two conflicting terms: "ItemID" + "Incident Details" | High — cannot determine governed meaning |
 | MEANING_MISMATCH | e.g., PRICE | Column is NUMBER(8,2) but linked to "Prospective Customers" | Critical — metadata actively misleading |
-| UNOWNED | e.g., FCT_ORDERS_BY_PRODUCT | No stakeholders assigned | Medium — no escalation path |
-| UNCLASSIFIED | e.g., EMAIL | Likely PII but no data classification applied | High — compliance risk |
+
+Other default severities: AMBIGUOUS → High · UNOWNED → Medium · UNCLASSIFIED → High (full example rows: [references/strategies.md](references/strategies.md) "Gap report examples").
 
 Severity levels:
 - **Critical** — metadata is actively wrong/misleading; using it as-is causes errors

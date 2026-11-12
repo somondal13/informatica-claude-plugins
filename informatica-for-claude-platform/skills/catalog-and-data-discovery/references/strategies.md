@@ -2,7 +2,7 @@
 
 > Canonical source for SKILL.md §7 (Strategies). Read when the agent has classified the intent and needs the full procedure for that strategy.
 
-**Contents:** BROAD_DISCOVERY · AUTHORITY_COMPARE · FIELD_MEANING · FIELD_RELIABILITY · TRUST_ASSESSMENT · FRESHNESS · RELATIONSHIPS · IMPACT_ANALYSIS · PROVENANCE · ROOT_CAUSE · OWNERSHIP · SENSITIVITY · POLICY · SAFE_USAGE · COMPLIANCE_FLAG · Worked illustration — period-scoped BROAD_DISCOVERY (wasteful vs corrected)
+**Contents:** BROAD_DISCOVERY · AUTHORITY_COMPARE · FIELD_MEANING · FIELD_RELIABILITY · TRUST_ASSESSMENT · FRESHNESS · RELATIONSHIPS · IMPACT_ANALYSIS · PROVENANCE · ROOT_CAUSE · OWNERSHIP · SENSITIVITY · POLICY · SAFE_USAGE · COMPLIANCE_FLAG · Worked illustration — period-scoped BROAD_DISCOVERY (wasteful vs corrected) · Gap report examples
 
 ## BROAD_DISCOVERY
 
@@ -255,3 +255,15 @@ Example question, over a messy multi-vertical tenant: *"What's our customer reve
 5. **Optional sibling walk** — `get_asset_details(assetIdentity=<parent schema>, segments=[hierarchy])`. Justified because the earlier bucket was small; reveals a daily-grain aggregate table and its build procedure that keyword ranking had buried. **1–2 calls.**
 
 **General shape:** search to choose a *neighborhood*; aggregations to confirm it; `hierarchy` to exhaust it; glossary to pin the definitions; then hand off with the resolved identity + an enriched prompt, or deliver the recipe with its SQL in a secondary section. Anti-patterns to fail against: broad glossary sweeps, hunting dimensional terms, ignoring aggregations, NL for structural queries, skipping grain check on a period-scoped question.
+
+## Gap report examples
+
+Example rows for SKILL.md §10 Part 3 (Gaps). Severity levels are defined there.
+
+| Gap Type | Asset/Field | Detail | Severity |
+|----------|------------|--------|----------|
+| UNDOCUMENTED | e.g., RATING | No glossary term, no business name | High — meaning unverified |
+| AMBIGUOUS | e.g., ID | Two conflicting terms: "ItemID" + "Incident Details" | High — cannot determine governed meaning |
+| MEANING_MISMATCH | e.g., PRICE | Column is NUMBER(8,2) but linked to "Prospective Customers" | Critical — metadata actively misleading |
+| UNOWNED | e.g., FCT_ORDERS_BY_PRODUCT | No stakeholders assigned | Medium — no escalation path |
+| UNCLASSIFIED | e.g., EMAIL | Likely PII but no data classification applied | High — compliance risk |
