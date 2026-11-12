@@ -80,7 +80,7 @@ With no query term the ranking is arbitrary and the result set is paginated — 
 - Hundreds of matches → narrow via aggregation buckets, or add `certified:true` filter to surface the trusted subset
 - Multiple terms → list all, flag conflicts
 - No certified → say so, offer best uncertified
-- No glossary term → do NOT substitute generic definition
+- No glossary term → do NOT substitute generic definition (a bannered general definition is given only if the user accepts the `term_not_found` offer — [business-delivery.md](business-delivery.md) "Failure and partial states")
 - Conflicting signals → report both, let user decide
 - Tool error → "unable to retrieve [X]" — never guess
 - Found one relevant asset → expand from same origin/resource to find connected assets in the same domain

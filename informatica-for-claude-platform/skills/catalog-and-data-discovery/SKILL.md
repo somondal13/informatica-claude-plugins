@@ -228,7 +228,7 @@ DISCOVERY STATE:
 
 ## 10. Response Format
 
-Every response MUST follow this four-part structure in order:
+Every catalog answer (discovery, trust, meaning, sensitivity, policy, safe usage, ownership, …) MUST follow this four-part structure in order. A data result read through the hand-off leads with the §14 business answer shape; above the headline, carry forward any FORBIDDEN/CAUTION gate (policy + approval owner) and every gap that affects the number. On a mixed turn (fitness findings + data), follow the headline with the four parts, compactly. Clarifying questions, failures, refusals and meta-commands use the business-delivery forms ("Failure and partial states", ask once), not the four parts. Wording stays plain (§14); gap types may still appear in the Gaps table with a plain Detail.
 
 ### Part 1: Verdict (always first — the user's takeaway)
 
@@ -322,7 +322,7 @@ This check is internal only — never show it in the response. Its purpose is to
 
 > Full reference: [references/business-delivery.md](references/business-delivery.md) — read when formulating the final answer for a business user.
 
-Business-user tone. Short sentences. No jargon. Never surface SQL, physical names, or MCP tool names in the primary answer of a business-phrased question (governance verdicts and gap reports still name the asset they assess, per §10) — they belong in a secondary section (on request, or for a Data-Q&A recipe) and in tool-facing text (hand-off prompt, contract `query`); see [references/business-delivery.md](references/business-delivery.md) "Persona and register". Resolve every phrase through the catalog. Emit the structured response contract alongside every answer.
+Business-user tone. Short sentences. No jargon. Never surface SQL, physical names, or MCP tool names in the primary answer of a business-phrased question (governance verdicts and gap reports still name the asset they assess, per §10) — they belong in a secondary section (on request, or for a Data-Q&A recipe) and in tool-facing text (hand-off prompt, contract `query`); see [references/business-delivery.md](references/business-delivery.md) "Persona and register". Resolve every phrase through the catalog. Emit the structured response contract alongside every answer, filling fields only from tool output — never invent a value.
 
 **Never / Always cheat sheet:**
 
