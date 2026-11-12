@@ -81,7 +81,7 @@ Tool names in this skill are unqualified. Your client may show them with a serve
 - **`search_assets`** — find assets by query + filters. Parameters: `query`, `mode` (KEYWORD/NL), `filterSpec`, `aggregationSpec`, `sortSpec`, `from`, `size`.
 - **`get_asset_details`** — fetch one asset by identity. Parameters: `assetIdentity` (UUID), `identityType` (INTERNAL default), `segments[]`.
 
-**Always use internal UUID** with default `INTERNAL` identity type. Do not use `EXTERNAL` — the `externalId` suffix causes 400 errors.
+**Always use internal UUID** with default `INTERNAL` identity type. Do not use `EXTERNAL` — the `externalId` suffix causes 400 errors. The external ID is only for the data-exploration hand-off, and there it is mandatory: `data_explore` without `external_id` / `external_ids` returns empty frames with no error — an empty frame means the ID was missing, not that the asset has no data ([references/tools-and-execution.md](references/tools-and-execution.md) "Reading actual data").
 
 ### Segments
 
@@ -101,19 +101,11 @@ Tool names in this skill are unqualified. Your client may show them with a serve
 - RELATIONSHIPS → `[hierarchy, neighborhood]`
 - SENSITIVITY → `[hierarchy, dataClassification]`
 - FIELD_MEANING → `[hierarchy]` on parent, then `[glossary, selfAttributes]` per child
+- FIELD_RELIABILITY → `[glossary, selfAttributes, neighborhood]` per field (neighborhood carries DQ rules)
 
 ### Parallel execution
 
-By default, issue independent calls together in the same turn. Run them sequentially only if the client cannot issue parallel calls or after a resource/concurrency error (see the reference). A round is a set of calls with no dependency on each other. Fast path (2 rounds) when column UUIDs come from search; slow path (3 rounds) when hierarchy must resolve them first. See [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model" for the full round model.
-
-### Gotchas
-
-Silent or surprising failures — each restates a rule elsewhere in this file or in the references:
-
-- **`get_asset_details` with `identityType: EXTERNAL` → HTTP 400.** Always pass the internal UUID (§4). The external ID is only for the data-exploration hand-off.
-- **`certified:true` drops every non-dataset.** Glossary terms, domains and policies are never certified — filter them with `assetLifecycle:["Published"]` (§11).
-- **A compound phrase as one KEYWORD query → 0 results.** Split into single words or use NL (§11, [references/search-rules.md](references/search-rules.md) "Compound phrase hard rule").
-- **`data_explore` without `external_id` / `external_ids` → empty frames, no error.** An empty frame means the ID was missing, not that the asset has no data ([references/tools-and-execution.md](references/tools-and-execution.md) "Reading actual data").
+A round is a set of calls with no dependency on each other — issue them together (principle 8). Fast path (2 rounds) when column UUIDs come from search; slow path (3 rounds) when hierarchy must resolve them first. Full round model: [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model".
 
 ---
 
@@ -161,23 +153,23 @@ BROAD_DISCOVERY: 3–5 (up to 10 on first-turn fitness, campaign or period-scope
 
 Worked BROAD_DISCOVERY example (wasteful vs corrected path): [references/strategies.md](references/strategies.md) "Worked illustration".
 
-| Strategy | Core action | Key rules |
-|----------|------------|-----------|
-| BROAD_DISCOVERY | Search → escalate → fitness pre-scan → report | Compound-phrase gate; filter-first escalation; column-to-parent derivation; origin-scoped follow-ups; fast/slow path; fiscal-term resolution; wiring checks |
-| AUTHORITY_COMPARE | Fetch candidates → eligibility gates → evidence table → winner | Datasets: `certified:true`. Others: `assetLifecycle:Published`. Evidence table always shown. |
-| FIELD_MEANING | Hierarchy → pick fields → glossary + selfAttributes per field | Term present → aligned/mismatch. No term → UNDOCUMENTED |
-| FIELD_RELIABILITY | Glossary + selfAttributes + neighborhood per field → verdict checkpoint → decision tree | AMBIGUOUS / MEANING_MISMATCH / RELIABLE / UNDOCUMENTED. Never soften non-RELIABLE. |
-| TRUST_ASSESSMENT | selfAttributes + stakeholdership + glossary → score 0–10 | ≥8 Production-ready (requires certified), ≥5 Sound with gaps, ≥3 Use with caution, <3 Not ready |
-| FRESHNESS | Timestamps from state or selfAttributes → staleness comparison | Flag if derived older than source |
-| RELATIONSHIPS | Hierarchy + neighborhood → declared vs inferred | FK/PK = declared. RelatedTo = inferred. No lineage available. |
-| IMPACT_ANALYSIS | Search referencing assets → classify by mechanism | FK = enforced, RelatedTo = inferred, name-only = possible |
-| PROVENANCE | Hierarchy + neighborhood + selfAttributes → feeder search | No lineage (DataFlow excluded). Search feeders by name. |
-| ROOT_CAUSE | Review state → causal chain → max 2 calls if gaps | Label as hypothesis |
-| OWNERSHIP | Stakeholdership segment → report or flag gap | Suggest checking schema/resource level if absent |
-| SENSITIVITY | Hierarchy + dataClassification → field-level assessment | HIDDEN_SENSITIVITY: REGION→Religion. UNCLASSIFIED gap if empty. |
-| POLICY | Search policies → selfAttributes for scope | Never invent policy. "implied by classification" vs "stated in policy" |
-| SAFE_USAGE | Synthesize → FORBIDDEN / CAUTION / PERMISSIBLE | Restate policy gate + approval owner. Data-Q&A: hand off or deliver recipe. |
-| COMPLIANCE_FLAG | Scan hierarchy for RTBF/consent/opt-out patterns | None found → NO_COMPLIANCE_FLAG gap → escalate before campaign |
+| Strategy | Key rules |
+|----------|-----------|
+| BROAD_DISCOVERY | Compound-phrase gate; filter-first escalation; column-to-parent derivation; origin-scoped follow-ups; fast/slow path; fiscal-term resolution; wiring checks |
+| AUTHORITY_COMPARE | Eligibility gates — datasets `certified:true`, others `assetLifecycle:Published`. Evidence table always shown. |
+| FIELD_MEANING | Term present → aligned/mismatch. No term → UNDOCUMENTED |
+| FIELD_RELIABILITY | AMBIGUOUS / MEANING_MISMATCH / RELIABLE / UNDOCUMENTED. Never soften non-RELIABLE. |
+| TRUST_ASSESSMENT | Score 0–10: ≥8 Production-ready (requires certified), ≥5 Sound with gaps, ≥3 Use with caution, <3 Not ready |
+| FRESHNESS | Flag if derived older than source |
+| RELATIONSHIPS | FK/PK = declared. RelatedTo = inferred. No lineage available. |
+| IMPACT_ANALYSIS | FK = enforced, RelatedTo = inferred, name-only = possible |
+| PROVENANCE | No lineage (DataFlow excluded). Search feeders by name. |
+| ROOT_CAUSE | Causal chain from state; max 2 calls if gaps. Label as hypothesis |
+| OWNERSHIP | No owner in stakeholdership → flag gap, suggest checking schema/resource level |
+| SENSITIVITY | HIDDEN_SENSITIVITY: REGION→Religion. UNCLASSIFIED gap if empty. |
+| POLICY | Never invent policy. "implied by classification" vs "stated in policy" |
+| SAFE_USAGE | FORBIDDEN / CAUTION / PERMISSIBLE. Restate policy gate + approval owner. Data-Q&A: hand off or deliver recipe. |
+| COMPLIANCE_FLAG | Scan hierarchy for RTBF/consent/opt-out. None → NO_COMPLIANCE_FLAG gap → escalate before campaign |
 
 ---
 
@@ -238,7 +230,7 @@ Lead with the conclusion, stated plainly. Include warnings, uncertainties, and g
 - If something is problematic → say so clearly with the risk ("undocumented — no governed meaning exists," "two conflicting terms — ambiguous")
 - If you cannot determine → say so ("insufficient catalog metadata to assess — confirm with steward")
 - List which assets/fields meet the user's criteria and which do not
-- **Full-context synthesis / audit packs:** prioritize a COMPLETE compact structure over depth in any single section — cover every required area in brief (source → definitions → PII/sensitivity → data-subject rights → policy/lawful-basis → ownership → lineage/exposure → gaps) BEFORE elaborating, so the deliverable is self-contained and never truncated mid-section. Completeness beats depth for an audit deliverable.
+- **Full-context synthesis / audit packs:** cover every area briefly BEFORE elaborating — source → definitions → PII/sensitivity → data-subject rights → policy/lawful-basis → ownership → lineage/exposure → gaps — so the deliverable is never truncated mid-section. Completeness beats depth.
 
 ### Part 2: Evidence & Decision Parameters (show the reasoning)
 
@@ -293,14 +285,7 @@ Concrete, actionable steps:
 - **Escalation order:** filter-first (drop `certified:true` or `classType`) → mode switch (KEYWORD↔NL) → report honestly.
 - **Read aggregation buckets** before every next call. `size=1` for counts + buckets.
 - `certified:true` excludes non-datasets. Use `assetLifecycle:["Published"]` for business assets.
-
----
-
-## 12. Handling Ambiguity
-
-> Full reference: [references/search-rules.md](references/search-rules.md) "Handling Ambiguity."
-
-Follow the escalation order in §11. Zero → escalate. Hundreds → narrow via buckets. Multiple terms → list all, flag conflicts. No certified → offer best uncertified. Tool error → state honestly.
+- **Ambiguity** ([references/search-rules.md](references/search-rules.md) "Handling Ambiguity"): zero → escalate · hundreds → narrow via buckets · multiple terms → list all, flag conflicts · no certified → offer best uncertified · tool error → state honestly.
 
 ---
 

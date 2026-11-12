@@ -1,6 +1,6 @@
 # Search Rules & Ambiguity Handling — Full Reference
 
-> Canonical source for SKILL.md §11 (Search Key Rules) + §12 (Handling Ambiguity). Read when the agent is about to issue a search call and needs to pick mode/filters/size, or when handling zero/ambiguous results.
+> Canonical source for SKILL.md §11 (Search Key Rules, including its Ambiguity bullet). Read when the agent is about to issue a search call and needs to pick mode/filters/size, or when handling zero/ambiguous results.
 
 ## Mode selection (by query shape, not by intent)
 
