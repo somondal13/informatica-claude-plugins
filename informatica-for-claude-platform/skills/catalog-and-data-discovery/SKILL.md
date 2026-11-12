@@ -157,6 +157,8 @@ BROAD_DISCOVERY: 3–5 (up to 10 on first-turn fitness/campaign prompts) | AUTHO
 
 ### Strategy summaries
 
+Worked BROAD_DISCOVERY example (wasteful vs corrected path): [references/strategies.md](references/strategies.md) "Worked illustration".
+
 | Strategy | Core action | Key rules |
 |----------|------------|-----------|
 | BROAD_DISCOVERY | Search → escalate → fitness pre-scan → report | Compound-phrase gate; filter-first escalation; column-to-parent derivation; origin-scoped follow-ups; fast/slow path; fiscal-term resolution; wiring checks |
