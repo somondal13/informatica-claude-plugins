@@ -20,7 +20,7 @@ The CDGC catalog is the authoritative index of what data exists, what it means t
 4. **Read aggregations first.** Every search returns buckets — use them to route the next call.
 5. **Gaps are findings.** Missing description, absent owner, no glossary term — report these explicitly.
 6. **Zero hallucination.** Every claim cites a tool response or the absence of expected data.
-7. **Minimize calls.** Batch segments. Cap at 3–5 calls per strategy unless user asks for more.
+7. **Minimize calls.** Batch segments. Aim for the typical call counts in §7 "Call Budgets" — they are not hard caps.
 8. **Parallelize independent calls (default).** When multiple tool calls have no data dependency between them, issue them in the same turn — do NOT wait for one to return before sending the next. Only if the client cannot issue parallel tool calls, or after a resource/concurrency error, run them one at a time. See [references/tools-and-execution.md](references/tools-and-execution.md) "Parallel execution model" for the execution model.
 
 ---
@@ -75,6 +75,8 @@ Two families: **Technical** (`Dataset`, `DataElement`) and **Business** (`Busine
 > Full reference: [references/tools-and-execution.md](references/tools-and-execution.md) — read when issuing tool calls, especially multi-round scenarios or data-exploration hand-off.
 
 Two read-only discovery tools. This skill does NOT enrich, edit, classify, or certify assets.
+
+Tool names in this skill are unqualified. Your client may show them with a server prefix — use the tool from the Informatica catalog (or, for `data_explore`, data-exploration) server whose own tool name (after any server prefix) is exactly the name given here — e.g. `data_explore`, not `master_data_explore`.
 
 - **`search_assets`** — find assets by query + filters. Parameters: `query`, `mode` (KEYWORD/NL), `filterSpec`, `aggregationSpec`, `sortSpec`, `from`, `size`.
 - **`get_asset_details`** — fetch one asset by identity. Parameters: `assetIdentity` (UUID), `identityType` (INTERNAL default), `segments[]`.
@@ -137,8 +139,8 @@ Silent or surprising failures — each restates a rule elsewhere in this file or
 
 ### Routing Algorithm
 
-1. **Scan** for signal tokens (case-insensitive). Apply disambiguators for overlaps.
-2. **Route:** 1 intent → execute. 2 intents → both (primary first). 3+ or 0 → score by (signal count × disambiguator match), fallback to BROAD_DISCOVERY.
+1. **Scan** for signal tokens (case-insensitive) and apply disambiguators for overlaps. Signals are examples, not an exhaustive list — classify by what the user is asking, not by exact wording.
+2. **Route:** 1 intent → execute. 2 intents → both, primary first (primary = the one whose disambiguator fits the question best). 3+ → rank by disambiguator fit and run the best fit, plus any intent whose findings its strategy needs (e.g. SAFE_USAGE builds on SENSITIVITY and POLICY). 0 → fall back to BROAD_DISCOVERY and state the assumption (§1a item 3).
 3. **Context override:** If assets already known and prompt references them → skip search, use stored UUIDs.
 
 ---
@@ -148,6 +150,8 @@ Silent or surprising failures — each restates a rule elsewhere in this file or
 > Full procedures: [references/strategies.md](references/strategies.md) — read when you need the step-by-step for a classified intent.
 
 ### Call Budgets
+
+Typical call counts, not hard caps. Go over a range when the evidence needs it (an unconfirmed trap, a zero-result escalation) and never stop early just to stay inside it. Going well over usually means re-searching for something an earlier response already returned — reuse it instead.
 
 BROAD_DISCOVERY: 3–5 (up to 10 on first-turn fitness/campaign prompts) | AUTHORITY_COMPARE: 1–2 | FIELD_MEANING: 2–4 | FIELD_RELIABILITY: 1–2 | TRUST_ASSESSMENT: 1–2 | FRESHNESS: 0–1 | RELATIONSHIPS: 1–2 | IMPACT_ANALYSIS: 2–4 | PROVENANCE: 2–3 | ROOT_CAUSE: 0–2 | OWNERSHIP: 1 | SENSITIVITY: 1–3 | POLICY: 1–2 | SAFE_USAGE: 0–2 | COMPLIANCE_FLAG: 0–1
 

@@ -79,7 +79,7 @@ Round 3:  get_asset_details(date column, [glossary])      — fiscal wiring
 2. FK/PK objects appear as `hierarchy` children; the join they define ALSO appears in `neighborhood` as a `core.PKFK` table-to-table edge — both are valid evidence of a declared relationship.
 3. `neighborhood` excludes `DataFlow` lineage, `ParentChild`, and `ClassifiedAs` associations.
 4. No reverse lookup — search by name to find dependents.
-5. `data_explore` / `master_data_explore` expose **no structured field for resolved catalog facts** — resolved measures, filters, and date ranges must ride inside the free-text `prompt` (see "Enriching the hand-off prompt" below). This is a documented workaround; the durable fix is a structured resolved-filters field on the tool contract. Until then, the pre-hand-off verification gate is required because prompt enrichment is not otherwise enforced.
+5. `data_explore` / `master_data_explore` expose **no structured field for resolved catalog facts** — resolved measures, filters, and date ranges must ride inside the free-text `prompt` (see "Enriching the hand-off prompt" below). The pre-hand-off verification gate below is required because prompt enrichment is not otherwise enforced.
 
 ## Reading actual data — hand off to `informatica-data-exploration`
 
@@ -93,7 +93,7 @@ This skill is **metadata-only** — it decides *which* asset is right, trusted, 
 
 **MANDATORY — always send `external_id` (single asset) or `external_ids` (multiple assets) in the `data_explore` payload.** This is the asset's **EXTERNAL** catalog identity — the same value passed as `assetIdentity` with `identityType: EXTERNAL` — carried straight through from the `search_assets` / `get_asset_details` response. If `external_id`/`external_ids` is omitted, `data_explore` returns **empty result frames (zero rows) silently — no error is raised**. An empty frame therefore means "the external_id was missing," not "the asset has no data." Never call `data_explore` without it. The `prompt` you send is equally mandatory — it MUST be enriched with the resolved facts (see "Enriching the hand-off prompt" below), never the raw user question. Re-confirm the exact field spelling against the tool schema if a call unexpectedly returns empty.
 
-For sources the `informatica-data-exploration` does not cover, pass the resolved path into the direct source MCP instead (Snowflake, Postgres, S3, BI). If the relevant connector is installed but not enabled in this chat, its tools will not appear — say so and ask the user to enable it, rather than reporting the question as unanswerable.
+If `informatica-data-exploration` does not cover the source and another data-access tool for it is available in this session, pass it the resolved asset path and an enriched prompt built as in "Enriching the hand-off prompt" below (follow that tool's own input rules). Otherwise say so and give the user the resolved asset and the resolved filters to run themselves, rather than reporting the question as unanswerable.
 
 ## Enriching the hand-off prompt (MANDATORY)
 
@@ -110,7 +110,7 @@ and DATE_COLUMN between resolved_fiscal_start and resolved_fiscal_end
 the region or the period from the data.
 ```
 
-**Worked example (the EMEA case):**
+**Worked example (the EMEA case — member list and dates are illustrative; use the values resolved from the tenant's catalog):**
 
 - Raw (WRONG — do not send): `Q2 Sales Revenue for EMEA`
 - Enriched (CORRECT): `Sum NET_SALES from FACT_ORDER where SALES_REGION in ('France','Italy','Germany') and ORDER_DATE between 2026-05-01 and 2026-07-31. Use these exact filter values; do not re-derive the region or the period from the data.`
