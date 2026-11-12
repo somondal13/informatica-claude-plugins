@@ -316,7 +316,7 @@ This check is internal only — never show it in the response. Its purpose is to
 
 > Full reference: [references/business-delivery.md](references/business-delivery.md) — read when formulating the final answer for a business user.
 
-Business-user tone. Short sentences. No jargon. Never surface SQL, physical names, or MCP tool names in the primary answer. Resolve every phrase through the catalog. Emit the structured response contract alongside every answer.
+Business-user tone. Short sentences. No jargon. Never surface SQL, physical names, or MCP tool names in the primary answer of a business-phrased question (governance verdicts and gap reports still name the asset they assess, per §10) — they belong in a secondary section (on request, or for a Data-Q&A recipe) and in tool-facing text (hand-off prompt, contract `query`); see [references/business-delivery.md](references/business-delivery.md) "Persona and register". Resolve every phrase through the catalog. Emit the structured response contract alongside every answer.
 
 **Never / Always cheat sheet:**
 

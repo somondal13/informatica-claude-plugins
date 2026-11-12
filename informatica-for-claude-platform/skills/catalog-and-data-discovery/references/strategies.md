@@ -218,15 +218,15 @@ Primarily synthesis from conversation state. Only call tools if field analysis i
 2. Add conditions: exclude RTBF=true, obtain consent for contact fields, don't segment on forbidden
 3. Report: structured guide (CAN use / MUST NOT use / needs resolution / prerequisites)
 4. **Restate the gate explicitly:** end with the applicable policy (name, or "implied by PII/special-category classification") AND the required approval/owner — e.g. "Gated on: marketing-use policy [implied by PII classification] + steward approval; no owner is assigned, so escalate before sending." A safe-usage answer that omits the policy + approval gate is incomplete.
-5. **When the ask is Data-Q&A (counts, ranked lists, anti-joins):** do NOT stop at "cannot run it." Two paths: (a) if the actual data should be read, hand off the resolved asset to the `informatica-data-exploration` MCP (see [tools-and-execution.md](tools-and-execution.md) "Reading actual data") — remember `data_explore` requires `external_id`/`external_ids` or it returns empty frames silently, and the prompt MUST be enriched with the resolved facts (see [tools-and-execution.md](tools-and-execution.md) "Enriching the hand-off prompt"); (b) otherwise deliver the precise recipe — the governed table(s), the exact join/anti-join key(s), and the SQL that WOULD answer it — plus the caveats (safe fields, RTBF/consent exclusions). The executed result or the recipe IS the deliverable.
+5. **When the ask is Data-Q&A (counts, ranked lists, anti-joins):** do NOT stop at "cannot run it." Two paths: (a) if the actual data should be read, hand off the resolved asset to the `informatica-data-exploration` MCP (see [tools-and-execution.md](tools-and-execution.md) "Reading actual data") — remember `data_explore` requires `external_id`/`external_ids` or it returns empty frames silently, and the prompt MUST be enriched with the resolved facts (see [tools-and-execution.md](tools-and-execution.md) "Enriching the hand-off prompt"); (b) otherwise deliver the precise recipe: lead with the business-language answer (which governed asset, how they join, which records are excluded and why, plus the caveats — safe fields, RTBF/consent exclusions), then give the exact join/anti-join key(s) and the SQL that WOULD answer it in a secondary section ([business-delivery.md](business-delivery.md) "Persona and register"). The executed result or the recipe IS the deliverable.
 
 ## COMPLIANCE_FLAG
 
 1. Scan hierarchy for patterns: RTBF, CONSENT, OPT_IN, OPT_OUT, DO_NOT_CONTACT, SUPPRESSION, ERASURE_FLAG
 2. If found: `get_asset_details(segments=[glossary, selfAttributes])` to confirm purpose
-3. Report with operational guidance:
-   - RTBF → "Filter WHERE RTBF IS NULL OR FALSE before outreach"
-   - Consent → "Only contact where CONSENT = TRUE"
+3. Report with operational guidance (business wording in the primary answer; the exact filter in a secondary section — [business-delivery.md](business-delivery.md) "Persona and register"):
+   - RTBF → "Exclude anyone who has asked to be forgotten before outreach" (filter: `WHERE RTBF IS NULL OR FALSE`)
+   - Consent → "Only contact people who have given consent" (filter: `WHERE CONSENT = TRUE`)
    - None found → "No compliance flags — escalate before campaign" (NO_COMPLIANCE_FLAG gap)
 
 ---
@@ -254,4 +254,4 @@ Example question, over a messy multi-vertical tenant: *"What's our customer reve
 4. **Targeted glossary probe** — `search_assets(query="fiscal quarter", filterSpec={classType:["com.infa.ccgf.models.governance.BusinessTerm"], assetLifecycle:["Published"]})`. Returns the tenant's fiscal-calendar term with the exact date range for "last quarter." Quote the steward's definition. **1 call.** (Note: do NOT add `certified:true` here — glossary terms are never certified; the filter returns zero and you'd wrongly conclude no definition exists.)
 5. **Optional sibling walk** — `get_asset_details(assetIdentity=<parent schema>, segments=[hierarchy])`. Justified because the earlier bucket was small; reveals a daily-grain aggregate table and its build procedure that keyword ranking had buried. **1–2 calls.**
 
-**General shape:** search to choose a *neighborhood*; aggregations to confirm it; `hierarchy` to exhaust it; glossary to pin the definitions; then hand off with the resolved identity + the SQL recipe. Anti-patterns to fail against: broad glossary sweeps, hunting dimensional terms, ignoring aggregations, NL for structural queries, skipping grain check on a period-scoped question.
+**General shape:** search to choose a *neighborhood*; aggregations to confirm it; `hierarchy` to exhaust it; glossary to pin the definitions; then hand off with the resolved identity + an enriched prompt, or deliver the recipe with its SQL in a secondary section. Anti-patterns to fail against: broad glossary sweeps, hunting dimensional terms, ignoring aggregations, NL for structural queries, skipping grain check on a period-scoped question.
